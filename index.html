@@ -1,446 +1,518 @@
 <!DOCTYPE html>
-
 <html lang="en">
-
 <head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Camel Guard | Smart Road Safety</title>
 
-<meta charset="UTF-8">
+  <style>
+    * {
+      box-sizing: border-box;
+    }
 
-<meta name="viewport" content="width=device-width, initial-scale=1">
+    body {
+      margin: 0;
+      font-family: Arial, sans-serif;
+      background: #f5f1e8;
+      color: #173b3b;
+    }
 
-<title>Camel Road Safety System</title>
+    header {
+      background: #173b3b;
+      color: white;
+      padding: 25px 18px;
+      text-align: center;
+    }
 
-<style>
+    header h1 {
+      margin: 0;
+      font-size: 32px;
+    }
 
-body {
+    header p {
+      margin-bottom: 0;
+      color: #e4d8bd;
+    }
 
-  margin: 0;
+    main {
+      max-width: 900px;
+      margin: 25px auto;
+      padding: 0 16px;
+    }
 
-  font-family: Arial, sans-serif;
+    .card {
+      background: white;
+      padding: 22px;
+      margin-bottom: 18px;
+      border-radius: 16px;
+      box-shadow: 0 3px 12px #0000000c;
+    }
 
-  background: #101d2b;
+    h2 {
+      margin-top: 0;
+      font-size: 20px;
+    }
 
-  color: white;
+    .status {
+      padding: 16px;
+      text-align: center;
+      border-radius: 12px;
+      background: #e4f5e9;
+      color: #176534;
+      font-weight: bold;
+      font-size: 20px;
+    }
 
-  text-align: center;
+    .status.warning {
+      background: #ffebdf;
+      color: #a83218;
+    }
 
-}
+    .status.error {
+      background: #fff3cd;
+      color: #785600;
+    }
 
-header {
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
+      gap: 16px;
+    }
 
-  padding: 25px 12px;
+    .metric {
+      background: #f5f1e8;
+      border-radius: 12px;
+      padding: 18px;
+      text-align: center;
+    }
 
-  background: #18334a;
+    .metric p {
+      margin: 0 0 10px;
+      color: #526b68;
+    }
 
-}
+    .metric strong {
+      font-size: 27px;
+    }
 
-h1 { margin-bottom: 8px; }
+    label {
+      display: block;
+      margin: 12px 0 7px;
+      font-weight: bold;
+    }
 
-main {
+    input {
+      width: 100%;
+      padding: 12px;
+      border: 1px solid #b8c8c3;
+      border-radius: 8px;
+      font-size: 16px;
+    }
 
-  max-width: 600px;
+    button {
+      padding: 12px 16px;
+      border: none;
+      border-radius: 9px;
+      background: #176b63;
+      color: white;
+      font-size: 15px;
+      font-weight: bold;
+      cursor: pointer;
+      margin: 6px 4px 6px 0;
+    }
 
-  margin: auto;
+    button:hover {
+      background: #104c47;
+    }
 
-  padding: 20px;
+    button:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
 
-}
+    button.secondary {
+      background: #526b68;
+    }
 
-.panel {
+    button.stop {
+      background: #a83232;
+    }
 
-  background: #203449;
+    #message {
+      overflow-wrap: anywhere;
+      line-height: 1.5;
+    }
 
-  padding: 20px;
+    .small {
+      color: #526b68;
+      font-size: 14px;
+      line-height: 1.5;
+    }
 
-  border-radius: 16px;
-
-  margin: 16px 0;
-
-}
-
-input, button {
-
-  box-sizing: border-box;
-
-  width: 100%;
-
-  padding: 13px;
-
-  margin: 7px 0;
-
-  border-radius: 8px;
-
-  border: none;
-
-  font-size: 16px;
-
-}
-
-button {
-
-  background: #e8b44a;
-
-  color: #17202a;
-
-  font-weight: bold;
-
-}
-
-#alert {
-
-  display: none;
-
-  background: #c62828;
-
-  padding: 22px 10px;
-
-  border-radius: 12px;
-
-  font-size: 22px;
-
-  font-weight: bold;
-
-}
-
-#alert.active {
-
-  display: block;
-
-  animation: flash 0.8s infinite alternate;
-
-}
-
-@keyframes flash {
-
-  from { background: #a91616; }
-
-  to { background: #f44336; }
-
-}
-
-.status { color: #aee8bd; }
-
-.small { color: #cbd5df; font-size: 14px; }
-
-</style>
-
+    footer {
+      text-align: center;
+      padding: 25px;
+      color: #526b68;
+    }
+  </style>
 </head>
 
 <body>
+  <header>
+    <h1>🐪 CAMEL GUARD</h1>
+    <p>Smart Camel Detection and Road Safety System</p>
+  </header>
 
-<header>
+  <main>
+    <section class="card">
+      <h2>System Status</h2>
+      <div id="roadStatus" class="status">
+        NOT CONNECTED
+      </div>
+      <p id="message" role="status" aria-live="polite">
+        Connect your ESP32 to begin monitoring.
+      </p>
+    </section>
 
-  <h1>🐪 Camel Road Safety System</h1>
+    <section class="card">
+      <h2>ESP32 Connection</h2>
 
-  <p>AI Detection & Early Warning Prototype</p>
+      <label for="espAddress">ESP32 IP Address</label>
+      <input
+        id="espAddress"
+        type="text"
+        value="192.168.2.124"
+        placeholder="Example: 192.168.2.124"
+      >
 
-</header>
+      <button id="connectButton">Connect to ESP32</button>
+      <button id="disconnectButton" class="secondary">
+        Disconnect
+      </button>
 
-<main>
+      <p class="small">
+        Keep the ESP32 powered on and connected to the same Wi-Fi
+        network as your device.
+      </p>
+    </section>
 
-  <div class="panel">
+    <section class="card">
+      <h2>Live Sensor Readings</h2>
 
-    <h2>System Status</h2>
+      <div class="grid">
+        <div class="metric">
+          <p>Distance</p>
+          <strong id="distance">-- cm</strong>
+        </div>
 
-    <p id="status" class="status">Demo mode — not connected</p>
+        <div class="metric">
+          <p>Detection</p>
+          <strong id="detection">Unknown</strong>
+        </div>
 
-    <p id="last">Waiting for detection...</p>
+        <div class="metric">
+          <p>Connection</p>
+          <strong id="connection">Offline</strong>
+        </div>
+      </div>
+    </section>
 
-  </div>
+    <section class="card">
+      <h2>Monitoring Controls</h2>
 
-  <div id="alert" role="alert">
+      <button id="startButton" disabled>
+        ▶ Start Monitoring
+      </button>
 
-    ⚠️ CAMEL DETECTED! ⚠️
+      <button id="stopButton" class="stop" disabled>
+        ■ Stop Monitoring
+      </button>
 
-    <p style="font-size:16px">
+      <button id="soundButton" class="secondary">
+        🔊 Test Alert Sound
+      </button>
 
-      Warning! A camel has entered the danger zone.
+      <p class="small">
+        Monitoring checks the distance reported by the ESP32.
+        The ESP32 controls the physical buzzer.
+      </p>
+    </section>
 
-    </p>
+    <section class="card">
+      <h2>Latest Alert</h2>
+      <div id="alertBox" class="status">
+        No alerts yet
+      </div>
+      <p id="lastUpdated" class="small">
+        Waiting for sensor data.
+      </p>
+    </section>
 
-  </div>
+    <section class="card">
+      <h2>About Camel Guard</h2>
+      <p>
+        Camel Guard is a smart road-safety prototype designed to
+        detect nearby objects and warn users when an object enters
+        the detection zone. The ultrasonic sensor measures distance,
+        the ESP32 processes the reading, and the buzzer provides a
+        physical warning.
+      </p>
+    </section>
+  </main>
 
-  <div class="panel">
+  <footer>
+    Camel Guard | ICT Project | UAE
+  </footer>
 
-    <h3>ESP32 Connection</h3>
+  <script>
+    const addressInput = document.getElementById("espAddress");
+    const connectButton = document.getElementById("connectButton");
+    const disconnectButton = document.getElementById("disconnectButton");
+    const startButton = document.getElementById("startButton");
+    const stopButton = document.getElementById("stopButton");
+    const soundButton = document.getElementById("soundButton");
 
-    <p class="small">
+    const roadStatus = document.getElementById("roadStatus");
+    const message = document.getElementById("message");
+    const distanceDisplay = document.getElementById("distance");
+    const detectionDisplay = document.getElementById("detection");
+    const connectionDisplay = document.getElementById("connection");
+    const alertBox = document.getElementById("alertBox");
+    const lastUpdated = document.getElementById("lastUpdated");
 
-      Enter the ESP32 address shown in its serial monitor.
+    let monitoring = false;
+    let connected = false;
+    let timer = null;
+    let requestInProgress = false;
+    let previousDetection = false;
+    let audioContext = null;
 
-    </p>
+    function setStatus(text, type = "") {
+      roadStatus.textContent = text;
+      roadStatus.className = "status";
 
-    <input id="ip" placeholder="Example: 192.168.1.50">
+      if (type) {
+        roadStatus.classList.add(type);
+      }
+    }
 
-    <button onclick="connectESP()">Connect to ESP32</button>
+    function getSensorURL() {
+      let address = addressInput.value.trim();
 
-    <button onclick="disconnectESP()">Disconnect</button>
+      address = address.replace(/^https?:\/\//i, "");
+      address = address.replace(/\/+$/, "");
 
-  </div>
+      return "http://" + address + "/";
+    }
 
-  <div class="panel">
+    async function fetchSensorData() {
+      if (requestInProgress) return;
 
-    <h3>Prototype Test</h3>
+      requestInProgress = true;
 
-    <button onclick="testAlert()">🐪 Simulate Camel Detection</button>
+      try {
+        const controller = new AbortController();
+        const timeout = setTimeout(() => controller.abort(), 3000);
 
-    <button onclick="clearAlert()">Reset Alert</button>
+        let response;
 
-    <p class="small">
+        try {
+          response = await fetch(getSensorURL(), {
+            method: "GET",
+            cache: "no-store",
+            signal: controller.signal
+          });
+        } finally {
+          clearTimeout(timeout);
+        }
 
-      The test button demonstrates the website alert.
+        if (!response.ok) {
+          throw new Error("ESP32 returned HTTP " + response.status);
+        }
 
-      It does not test the real camera or sensor.
+        const data = await response.json();
 
-    </p>
+        connected = true;
+        connectionDisplay.textContent = "Online";
+        startButton.disabled = false;
 
-  </div>
+        if (data.distance_cm !== null &&
+            data.distance_cm !== undefined) {
+          distanceDisplay.textContent =
+            Number(data.distance_cm).toFixed(1) + " cm";
+        } else {
+          distanceDisplay.textContent = "-- cm";
+        }
 
-  <p class="small">
+        const detected = data.detected === true;
 
-    Project purpose: detect camels near a road and warn users.
+        detectionDisplay.textContent =
+          detected ? "DETECTED" : "Clear";
 
-  </p>
+        if (detected) {
+          setStatus("⚠️ WARNING: OBJECT DETECTED", "warning");
+          alertBox.textContent =
+            data.alert || "Object detected nearby!";
+          alertBox.className = "status warning";
 
-</main>
+          if (!previousDetection) {
+            playAlertSound();
+          }
+        } else {
+          setStatus("ROAD CLEAR");
+          alertBox.textContent = "No object detected nearby.";
+          alertBox.className = "status";
+        }
 
-<script>
+        previousDetection = detected;
 
-let timer = null;
+        message.textContent = monitoring
+          ? "Connected. Live monitoring is running."
+          : "Connected. Click Start Monitoring to begin.";
 
-let previousDetection = false;
+        lastUpdated.textContent =
+          "Last updated: " + new Date().toLocaleTimeString();
 
-let audioContext = null;
+      } catch (error) {
+        connected = false;
+        connectionDisplay.textContent = "Offline";
+        startButton.disabled = true;
 
-function playAlarm() {
+        setStatus("CONNECTION FAILED", "error");
 
-  try {
+        message.textContent =
+          "Could not read the ESP32. Check the IP address, Wi-Fi, " +
+          "and whether the ESP32 program is running. Browser security " +
+          "may also block this connection.";
 
-    const AudioCtx =
+        if (monitoring) {
+          stopMonitoring(false);
+        }
+      } finally {
+        requestInProgress = false;
+      }
+    }
 
-      window.AudioContext || window.webkitAudioContext;
+    connectButton.addEventListener("click", async () => {
+      connectButton.disabled = true;
+      message.textContent = "Connecting to the ESP32...";
+      setStatus("CONNECTING...");
 
-    if (!AudioCtx) return;
+      try {
+        await fetchSensorData();
 
-    if (!audioContext) audioContext = new AudioCtx();
-
-    audioContext.resume();
-
-    [0, 0.35, 0.7].forEach(delay => {
-
-      const oscillator = audioContext.createOscillator();
-
-      const gain = audioContext.createGain();
-
-      oscillator.type = "sine";
-
-      oscillator.frequency.value = 880;
-
-      gain.gain.value = 0.25;
-
-      oscillator.connect(gain);
-
-      gain.connect(audioContext.destination);
-
-      const start = audioContext.currentTime + delay;
-
-      oscillator.start(start);
-
-      oscillator.stop(start + 0.2);
-
+        if (connected) {
+          startMonitoring();
+        }
+      } finally {
+        connectButton.disabled = false;
+      }
     });
 
-  } catch (error) {
-
-    console.log("Audio could not play", error);
-
-  }
-
-}
-
-function showAlert() {
-
-  document.getElementById("alert").classList.add("active");
-
-  document.getElementById("last").textContent =
-
-    "Camel detected at " + new Date().toLocaleTimeString();
-
-  playAlarm();
-
-}
-
-function clearAlert() {
-
-  document.getElementById("alert").classList.remove("active");
-
-  document.getElementById("last").textContent =
-
-    "Waiting for detection...";
-
-}
-
-function testAlert() {
-
-  showAlert();
-
-}
-
-async function checkESP() {
-
-  const ip = document.getElementById("ip").value.trim();
-
-  if (!ip) return;
-
-  try {
-
-    const response = await fetch(
-
-      "http://" + ip + "/status",
-
-      { cache: "no-store" }
-
-    );
-
-    if (!response.ok) throw new Error("Connection failed");
-
-    const data = await response.json();
-
-    document.getElementById("status").textContent =
-
-      "Connected to ESP32 — monitoring";
-
-    if (data.camelDetected && !previousDetection) {
-
-      showAlert();
-
-    }
-
-    if (!data.camelDetected && previousDetection) {
-
-      clearAlert();
-
-    }
-
-    previousDetection = Boolean(data.camelDetected);
-
-  } catch (error) {
-
-    document.getElementById("status").textContent =
-
-      "Connection unavailable — check Wi-Fi and ESP32";
-
-  }
-
-}
-
-function connectESP() {
-
-  disconnectESP();
-
-  // Unlock audio after the user's button press.
-
-  const AudioCtx =
-
-    window.AudioContext || window.webkitAudioContext;
-
-  if (AudioCtx && !audioContext) audioContext = new AudioCtx();
-
-  if (audioContext) audioContext.resume();
-
-  document.getElementById("status").textContent =
-
-    "Connecting to ESP32...";
-
-  checkESP();
-
-  timer = setInterval(checkESP, 1000);
-
-}
-
-function disconnectESP() {
-
-  if (timer) clearInterval(timer);
-
-  timer = null;
-
-  previousDetection = false;
-
-  document.getElementById("status").textContent =
-
-    "Disconnected — demo mode";
-
-}
-<script>
-
-const connectButton = document.createElement("button");
-
-connectButton.textContent = "Connect to Camel Guard Sensor";
-
-connectButton.style.cssText =
-
-  "padding:12px 18px;margin:16px;border-radius:8px;cursor:pointer;";
-
-document.body.appendChild(connectButton);
-
-const status = document.createElement("p");
-
-status.textContent = "Sensor not connected";
-
-document.body.appendChild(status);
-
-connectButton.addEventListener("click", async () => {
-
-  if (!("serial" in navigator)) {
-
-    status.textContent =
-
-      "Please open Camel Guard in Chrome or Edge on your laptop.";
-
-    return;
-
-  }
-
-  try {
-
-    const port = await navigator.serial.requestPort();
-
-    await port.open({ baudRate: 115200 });
-
-    status.textContent = "Sensor connected — waiting for alerts";
-
-    const decoder = new TextDecoderStream();
-
-    port.readable.pipeTo(decoder.writable).catch(() => {});
-
-    const reader = decoder.readable.getReader();
-
-    while (true) {
-
-      const { value, done } = await reader.read();
-
-      if (done) break;
-
-      if (value.includes("WARNING! Object detected!")) {
-
-        status.textContent = "⚠️ WARNING: Object detected nearby!";
-
-        alert("CAMEL GUARD WARNING: Object detected nearby!");
-
+    function startMonitoring() {
+      if (!connected) {
+        message.textContent = "Connect to the ESP32 first.";
+        return;
       }
 
+      monitoring = true;
+      startButton.disabled = true;
+      stopButton.disabled = false;
+
+      message.textContent = "Live monitoring is running.";
+
+      if (timer) clearInterval(timer);
+
+      fetchSensorData();
+      timer = setInterval(fetchSensorData, 1000);
     }
 
-  } catch (error) {
+    function stopMonitoring(showMessage = true) {
+      monitoring = false;
 
-    status.textContent = "Connection cancelled or failed. Please try again.";
+      if (timer) {
+        clearInterval(timer);
+        timer = null;
+      }
 
-    console.error(error);
+      startButton.disabled = !connected;
+      stopButton.disabled = true;
 
-  }
+      if (showMessage) {
+        message.textContent = "Monitoring stopped.";
+      }
+    }
 
-});
-</script>
+    startButton.addEventListener("click", startMonitoring);
+
+    stopButton.addEventListener("click", () => {
+      stopMonitoring();
+    });
+
+    disconnectButton.addEventListener("click", () => {
+      stopMonitoring(false);
+      connected = false;
+      previousDetection = false;
+
+      connectionDisplay.textContent = "Offline";
+      detectionDisplay.textContent = "Unknown";
+      distanceDisplay.textContent = "-- cm";
+
+      setStatus("NOT CONNECTED");
+      message.textContent = "Disconnected from the website's sensor checks.";
+      lastUpdated.textContent = "Waiting for sensor data.";
+
+      startButton.disabled = true;
+      stopButton.disabled = true;
+    });
+
+    function playAlertSound() {
+      try {
+        const AudioContextClass =
+          window.AudioContext || window.webkitAudioContext;
+
+        if (!AudioContextClass) {
+          message.textContent =
+            "Detection works, but this browser does not support the alert sound.";
+          return;
+        }
+
+        if (!audioContext) {
+          audioContext = new AudioContextClass();
+        }
+
+        if (audioContext.state === "suspended") {
+          audioContext.resume();
+        }
+
+        const oscillator = audioContext.createOscillator();
+        const gain = audioContext.createGain();
+
+        oscillator.type = "square";
+        oscillator.frequency.value = 880;
+        gain.gain.value = 0.12;
+
+        oscillator.connect(gain);
+        gain.connect(audioContext.destination);
+
+        oscillator.start();
+
+        setTimeout(() => {
+          oscillator.stop();
+          oscillator.disconnect();
+          gain.disconnect();
+        }, 350);
+
+      } catch (error) {
+        console.log("Audio could not play:", error);
+      }
+    }
+
+    soundButton.addEventListener("click", () => {
+      playAlertSound();
+      message.textContent =
+        "Alert sound test requested. Check your device volume.";
+    });
+  </script>
 </body>
-
 </html>
