@@ -371,9 +371,76 @@ function disconnectESP() {
     "Disconnected — demo mode";
 
 }
+<script>
 
+const connectButton = document.createElement("button");
+
+connectButton.textContent = "Connect to Camel Guard Sensor";
+
+connectButton.style.cssText =
+
+  "padding:12px 18px;margin:16px;border-radius:8px;cursor:pointer;";
+
+document.body.appendChild(connectButton);
+
+const status = document.createElement("p");
+
+status.textContent = "Sensor not connected";
+
+document.body.appendChild(status);
+
+connectButton.addEventListener("click", async () => {
+
+  if (!("serial" in navigator)) {
+
+    status.textContent =
+
+      "Please open Camel Guard in Chrome or Edge on your laptop.";
+
+    return;
+
+  }
+
+  try {
+
+    const port = await navigator.serial.requestPort();
+
+    await port.open({ baudRate: 115200 });
+
+    status.textContent = "Sensor connected — waiting for alerts";
+
+    const decoder = new TextDecoderStream();
+
+    port.readable.pipeTo(decoder.writable).catch(() => {});
+
+    const reader = decoder.readable.getReader();
+
+    while (true) {
+
+      const { value, done } = await reader.read();
+
+      if (done) break;
+
+      if (value.includes("WARNING! Object detected!")) {
+
+        status.textContent = "⚠️ WARNING: Object detected nearby!";
+
+        alert("CAMEL GUARD WARNING: Object detected nearby!");
+
+      }
+
+    }
+
+  } catch (error) {
+
+    status.textContent = "Connection cancelled or failed. Please try again.";
+
+    console.error(error);
+
+  }
+
+});
 </script>
-
 </body>
 
 </html>
